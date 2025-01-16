@@ -1,3 +1,6 @@
+/* eslint-disable linebreak-style */
+/* eslint-disable arrow-body-style */
+/* eslint-disable linebreak-style */
 const pool = require('./database');
 
 const create = (description) => {
