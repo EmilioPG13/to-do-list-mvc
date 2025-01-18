@@ -9,17 +9,26 @@ const App = () => {
   const [todoList, setTodoList] = useState();
   const [error, setError] = useState();
 
-  // Create a fetchTodos() function to update the View from Model using getTodos() function from Controller
+  // update view from model w/ controller
   const fetchTodos = async () => {
     const res = await getTodos();
     if (res.error) {
-      setError(res.error.message);
-    } else {
-      setTodoList(res.data);
+      setError(res.error.name);
+    }
+    setTodoList(res.data);
+  };
+
+  // send user action to controller
+  const handleDelete = async (id) => {
+    try {
+      await removeTodo(id);
+      fetchTodos();
+    } catch (err) {
+      setError(err);
     }
   };
 
-  // Create a handleSubmit() function to add new to-do list
+  // send user action to controller
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError();
@@ -29,30 +38,18 @@ const App = () => {
       data.set('created_at', `${new Date().toISOString()}`);
       const newTodo = await createTodo(data);
       if (newTodo.error) {
-        setError(newTodo.error.message);
-      } else {
-        setTodo({ description: '' });
-        fetchTodos();
+        setError(newTodo.error);
       }
-    } catch (err) {
-      setError(err.message);
-    }
-  };
-
-  // Create a handleDelete() function to remove to-do list with matching id
-  const handleDelete = async (id) => {
-    try {
-      await removeTodo(id);
+      setTodo({ description: '' });
       fetchTodos();
     } catch (err) {
-      setError(err.message);
+      setError(err);
     }
   };
 
   useEffect(() => {
     fetchTodos();
   }, []);
-
   return (
     <div className="App">
       <h1>To-Do List</h1>
@@ -63,7 +60,7 @@ const App = () => {
           onChange={(event) =>
             setTodo({ ...todo, description: event.target.value })
           }
-        />
+        ></input>
         <button type="submit">Add Todo</button>
       </form>
       {error && <p style={{ color: 'red' }}>{error}</p>}
@@ -72,7 +69,9 @@ const App = () => {
         {todoList?.map((todoItem) => (
           <li
             key={todoItem.todo_id}
-            onClick={() => handleDelete(todoItem.todo_id)}
+            onClick={() => {
+              handleDelete(todoItem.todo_id);
+            }}
           >
             {todoItem.description}
           </li>
