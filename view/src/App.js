@@ -13,9 +13,10 @@ const App = () => {
   const fetchTodos = async () => {
     const res = await getTodos();
     if (res.error) {
-      setError(res.error.name);
+      setError(res.error.message);
+    } else {
+      setTodoList(res.data);
     }
-    setTodoList(res.data);
   };
 
   // Create a handleSubmit() function to add new to-do list
@@ -28,12 +29,13 @@ const App = () => {
       data.set('created_at', `${new Date().toISOString()}`);
       const newTodo = await createTodo(data);
       if (newTodo.error) {
-        setError(newTodo.error);
+        setError(newTodo.error.message);
+      } else {
+        setTodo({ description: '' });
+        fetchTodos();
       }
-      setTodo({ description: '' });
-      fetchTodos();
     } catch (err) {
-      setError(err);
+      setError(err.message);
     }
   };
 
@@ -43,7 +45,7 @@ const App = () => {
       await removeTodo(id);
       fetchTodos();
     } catch (err) {
-      setError(err);
+      setError(err.message);
     }
   };
 

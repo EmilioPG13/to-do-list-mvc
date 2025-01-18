@@ -1,10 +1,20 @@
+const checkResponse = async (res) => {
+  const contentType = res.headers.get('content-type');
+  if (contentType && contentType.includes('application/json')) {
+    return res.json();
+  } else {
+    const text = await res.text();
+    throw new Error(text);
+  }
+};
+
 export const createTodo = async (todo) => {
   try {
     const res = await fetch('api/todo/create', {
       method: 'POST',
       body: todo,
     });
-    return res.json();
+    return await checkResponse(res);
   } catch (error) {
     return { error };
   }
@@ -13,8 +23,7 @@ export const createTodo = async (todo) => {
 export const getTodos = async () => {
   try {
     const res = await fetch('api/todos');
-    const data = await res.json();
-    return data;
+    return await checkResponse(res);
   } catch (error) {
     return { error };
   }
@@ -22,10 +31,10 @@ export const getTodos = async () => {
 
 export const removeTodo = async (id) => {
   try {
-    await fetch(`/api/todo/${id}`, {
+    const res = await fetch(`/api/todo/${id}`, {
       method: 'DELETE',
     });
-    return 'deleted';
+    return await checkResponse(res);
   } catch (error) {
     return { error };
   }
